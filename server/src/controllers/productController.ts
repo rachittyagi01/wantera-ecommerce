@@ -1,15 +1,74 @@
 import { Request, Response } from "express"
 import { Product } from "../models/Product"
+import { Category } from "../models/Category"
 import { generateSlug } from "../utils/generateSlug"
 
-// Public — list products (basic version; search/filter/pagination comes in Phase 12)
+// Public — list products with search, filtering, sorting, and pagination
 export async function getProducts(req: Request, res: Response) {
   try {
-    const products = await Product.find({ isActive: true })
-      .populate("category", "name slug") // pulls in category name/slug instead of just its ID
-      .sort({ createdAt: -1 })
+    const {
+      keyword,
+      category,
+      minPrice,
+      maxPrice,
+      sort,
+      page = "1",
+      limit = "12",
+    } = req.query as Record<string, string>
 
-    res.json({ products })
+    // Build the MongoDB filter object step by step
+    const filter: Record<string, unknown> = { isActive: true }
+
+    if (keyword) {
+      filter.$text = { $search: keyword } // uses the text index from Phase 10
+    }
+
+    if (category) {
+      // category comes in as a slug from the frontend (e.g. "electronics"),
+      // but the Product model stores a Category ObjectId — so we look up the ID first
+      const categoryDoc = await Category.findOne({ slug: category })
+      if (categoryDoc) {
+        filter.category = categoryDoc._id
+      } else {
+        // Requested category doesn't exist — return empty results rather than erroring
+        return res.json({ products: [], page: 1, totalPages: 0, totalProducts: 0 })
+      }
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {}
+      if (minPrice) (filter.price as Record<string, number>).$gte = Number(minPrice)
+      if (maxPrice) (filter.price as Record<string, number>).$lte = Number(maxPrice)
+    }
+
+    // Build the sort object
+    let sortOption: Record<string, 1 | -1> = { createdAt: -1 } // default: newest first
+    if (sort === "price_asc") sortOption = { price: 1 }
+    if (sort === "price_desc") sortOption = { price: -1 }
+    if (sort === "rating") sortOption = { ratings: -1 }
+    if (sort === "newest") sortOption = { createdAt: -1 }
+
+    // Pagination math
+    const pageNum = Math.max(1, Number(page))
+    const limitNum = Math.max(1, Number(limit))
+    const skip = (pageNum - 1) * limitNum
+
+    // Run the query and count in parallel — faster than doing them one after another
+    const [products, totalProducts] = await Promise.all([
+      Product.find(filter)
+        .populate("category", "name slug")
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum),
+      Product.countDocuments(filter),
+    ])
+
+    res.json({
+      products,
+      page: pageNum,
+      totalPages: Math.ceil(totalProducts / limitNum),
+      totalProducts,
+    })
   } catch (error) {
     console.error("Get products error:", error)
     res.status(500).json({ message: "Failed to fetch products" })
