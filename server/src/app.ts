@@ -1,4 +1,5 @@
 import express from "express"
+import { User } from "./models/User"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 
