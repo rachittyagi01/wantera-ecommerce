@@ -3,6 +3,8 @@ import { User } from "./models/User"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/authRoutes"
+import categoryRoutes from "./routes/categoryRoutes"
+import productRoutes from "./routes/productRoutes"
 
 const app = express()
 
@@ -16,6 +18,8 @@ app.use(cookieParser()) // parses cookies from incoming requests
 
 // Temporary test route — confirms the server works before we build real routes
 app.use("/api/auth", authRoutes)
+app.use("/api/categories", categoryRoutes)
+app.use("/api/products", productRoutes)
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "WANTERA API is running" })
 })
