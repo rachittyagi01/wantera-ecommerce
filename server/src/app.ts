@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes"
 import categoryRoutes from "./routes/categoryRoutes"
 import productRoutes from "./routes/productRoutes"
 import uploadRoutes from "./routes/uploadRoutes"
+import wishlistRoutes from "./routes/wishlistRoutes"
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/products", productRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/wishlist", wishlistRoutes)
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "WANTERA API is running" })
 })
