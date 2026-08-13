@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser"
 import authRoutes from "./routes/authRoutes"
 import categoryRoutes from "./routes/categoryRoutes"
 import productRoutes from "./routes/productRoutes"
+import uploadRoutes from "./routes/uploadRoutes"
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(cookieParser()) // parses cookies from incoming requests
 app.use("/api/auth", authRoutes)
 app.use("/api/categories", categoryRoutes)
 app.use("/api/products", productRoutes)
+app.use("/api/upload", uploadRoutes)
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "WANTERA API is running" })
 })
