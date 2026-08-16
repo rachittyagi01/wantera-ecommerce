@@ -10,6 +10,7 @@ import wishlistRoutes from "./routes/wishlistRoutes"
 import cartRoutes from "./routes/cartRoutes"
 import addressRoutes from "./routes/addressRoutes"
 import checkoutRoutes from "./routes/checkoutRoutes"
+import couponRoutes from "./routes/couponRoutes"
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.use("/api/wishlist", wishlistRoutes)
 app.use("/api/cart", cartRoutes)
 app.use("/api/addresses", addressRoutes)
 app.use("/api/checkout", checkoutRoutes)
+app.use("/api/coupons", couponRoutes)
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "WANTERA API is running" })
 })
