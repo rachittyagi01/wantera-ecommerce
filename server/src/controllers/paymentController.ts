@@ -7,6 +7,8 @@ import { Order } from "../models/Order"
 import { Product } from "../models/Product"
 import { validateCoupon } from "../utils/validateCoupon"
 import { AuthRequest } from "../middleware/authMiddleware"
+import { sendEmail } from "../utils/sendEmail"
+import { User } from "../models/User"
 
 // Step 1 of payment flow: create a Razorpay order using a SERVER-CALCULATED amount
 export async function createPaymentOrder(req: AuthRequest, res: Response) {
@@ -17,7 +19,6 @@ export async function createPaymentOrder(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "addressId is required" })
     }
 
-    // Verify the address belongs to this user (same IDOR protection pattern as Phase 15)
     const address = await Address.findOne({ _id: addressId, user: req.user!.userId })
     if (!address) {
       return res.status(404).json({ message: "Address not found" })
@@ -31,7 +32,6 @@ export async function createPaymentOrder(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "Your cart is empty" })
     }
 
-    // Recalculate everything server-side — identical logic to Phase 15's checkout summary
     let subtotal = 0
     const orderItems = []
 
@@ -59,7 +59,6 @@ export async function createPaymentOrder(req: AuthRequest, res: Response) {
     const shipping = subtotal > 999 ? 0 : 99
     const tax = Math.round(subtotal * 0.05)
 
-    // Apply coupon if provided — reusing the exact same validated utility from Phase 16
     let discount = 0
     if (couponCode) {
       const couponResult = await validateCoupon(couponCode, subtotal)
@@ -71,14 +70,12 @@ export async function createPaymentOrder(req: AuthRequest, res: Response) {
 
     const total = subtotal + shipping + tax - discount
 
-    // Create the actual Razorpay order — amount is in PAISE (smallest currency unit), so multiply by 100
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(total * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     })
 
-    // Create our own Order document, status PENDING — this is NOT yet a confirmed sale
     const order = await Order.create({
       user: req.user!.userId,
       items: orderItems,
@@ -126,7 +123,6 @@ export async function verifyPayment(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "Missing payment verification details" })
     }
 
-    // Recreate the expected signature using our secret key, and compare
     const body = `${razorpay_order_id}|${razorpay_payment_id}`
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
@@ -153,13 +149,26 @@ export async function verifyPayment(req: AuthRequest, res: Response) {
       return res.status(404).json({ message: "Order not found" })
     }
 
-    // Reduce stock now that payment is confirmed
     for (const item of order.items) {
       await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } })
     }
 
-    // Clear the user's cart
     await Cart.findOneAndUpdate({ user: order.user }, { items: [] })
+
+    // Send order confirmation email — best-effort, won't crash this request if it fails
+    const user = await User.findById(order.user)
+    if (user) {
+      await sendEmail({
+        to: user.email,
+        subject: `WANTERA Order Confirmed — #${order._id}`,
+        html: `
+          <h2>Thanks for your order, ${user.name}!</h2>
+          <p>Your order <strong>#${order._id}</strong> has been confirmed.</p>
+          <p><strong>Total: ₹${order.total}</strong></p>
+          <p>We'll notify you when it ships.</p>
+        `,
+      })
+    }
 
     res.json({ message: "Payment verified successfully", order })
   } catch (error) {
@@ -175,7 +184,6 @@ export async function razorpayWebhook(req: Request, res: Response) {
     const webhookSignature = req.headers["x-razorpay-signature"] as string
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!
 
-    // req.body here is the RAW request buffer, not parsed JSON — see the route setup for why
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
       .update(req.body)
@@ -205,6 +213,21 @@ export async function razorpayWebhook(req: Request, res: Response) {
         }
 
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] })
+
+        // Send order confirmation email — best-effort, won't crash this webhook if it fails
+        const user = await User.findById(order.user)
+        if (user) {
+          await sendEmail({
+            to: user.email,
+            subject: `WANTERA Order Confirmed — #${order._id}`,
+            html: `
+              <h2>Thanks for your order, ${user.name}!</h2>
+              <p>Your order <strong>#${order._id}</strong> has been confirmed.</p>
+              <p><strong>Total: ₹${order.total}</strong></p>
+              <p>We'll notify you when it ships.</p>
+            `,
+          })
+        }
       }
     }
 
