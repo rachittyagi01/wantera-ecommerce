@@ -14,6 +14,10 @@ import couponRoutes from "./routes/couponRoutes"
 import paymentRoutes from "./routes/paymentRoutes"
 import orderRoutes from "./routes/orderRoutes"
 import adminRoutes from "./routes/adminRoutes"
+import helmet from "helmet"
+import { sanitizeInput } from "./middleware/sanitize"
+import rateLimit from "express-rate-limit"
+
 
 const app = express()
 
@@ -24,6 +28,30 @@ app.use(cors({
 }))
 app.use(express.json()) // parses incoming JSON request bodies
 app.use(cookieParser()) // parses cookies from incoming requests
+
+// we use helmet
+app.use(helmet())
+
+// Sanitize all incoming data against NoSQL injection — strips $ and . from keys
+app.use(sanitizeInput)
+
+
+// General rate limit — applies to all API routes
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // 200 requests per IP per window
+  message: { message: "Too many requests, please try again later" },
+})
+app.use("/api", generalLimiter)
+
+// Stricter rate limit specifically for auth routes — brute-force protection
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // only 10 login/signup attempts per IP per 15 minutes
+  message: { message: "Too many authentication attempts, please try again later" },
+})
+app.use("/api/auth/login", authLimiter)
+app.use("/api/auth/signup", authLimiter)
 
 // Temporary test route — confirms the server works before we build real routes
 app.use("/api/auth", authRoutes)
