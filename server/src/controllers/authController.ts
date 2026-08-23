@@ -4,6 +4,7 @@ import { User } from "../models/User"
 import { signupSchema, loginSchema } from "../validators/authValidators"
 import { generateAccessToken, generateRefreshToken } from "../utils/generateTokens"
 import { refreshTokenCookieOptions } from "../utils/cookieOptions"
+import { AuthRequest } from "../middleware/authMiddleware"
 
 export async function signup(req: Request, res: Response) {
   try {
@@ -134,4 +135,92 @@ export async function refresh(req: Request, res: Response) {
 export async function logout(req: Request, res: Response) {
   res.clearCookie("refreshToken", { path: "/api/auth" })
   res.status(200).json({ message: "Logged out successfully" })
+}
+
+// Get the logged-in user's own profile
+export async function getMe(req: AuthRequest, res: Response) {
+  try {
+    const user = await User.findById(req.user!.userId)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
+      },
+    })
+  } catch (error) {
+    console.error("Get profile error:", error)
+    res.status(500).json({ message: "Failed to fetch profile" })
+  }
+}
+
+// Update the logged-in user's own profile (name, profile image — NOT email or password here)
+export async function updateMe(req: AuthRequest, res: Response) {
+  try {
+    const { name, profileImage } = req.body
+
+    const user = await User.findByIdAndUpdate(
+      req.user!.userId,
+      { name, profileImage },
+      { new: true, runValidators: true }
+    )
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json({
+      message: "Profile updated",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage,
+      },
+    })
+  } catch (error) {
+    console.error("Update profile error:", error)
+    res.status(500).json({ message: "Failed to update profile" })
+  }
+}
+
+// Change password — requires the CURRENT password, not just a new one
+export async function changePassword(req: AuthRequest, res: Response) {
+  try {
+    const { currentPassword, newPassword } = req.body
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current and new password are required" })
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters" })
+    }
+
+    const user = await User.findById(req.user!.userId).select("+password")
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    const isMatch = await user.comparePassword(currentPassword)
+    if (!isMatch) {
+      return res.status(401).json({ message: "Current password is incorrect" })
+    }
+
+    user.password = newPassword // pre("save") hook will hash this automatically
+    await user.save()
+
+    res.json({ message: "Password changed successfully" })
+  } catch (error) {
+    console.error("Change password error:", error)
+    res.status(500).json({ message: "Failed to change password" })
+  }
 }
