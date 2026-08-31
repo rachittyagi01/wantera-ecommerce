@@ -6,8 +6,6 @@ server/node_modules/
 # Environment variables (NEVER commit secrets)
 .env
 .env.local
-.env.development
-.env.production
 client/.env
 server/.env
 
