@@ -17,7 +17,6 @@
     "jsx": "react-jsx",
 
     /* Path alias — lets us write "@/components/..." instead of "../../../components/..." */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -25,7 +24,6 @@
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
