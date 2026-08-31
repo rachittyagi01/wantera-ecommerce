@@ -1,16 +1,30 @@
-import { Button } from "@/components/ui/button"
+import { Routes, Route } from "react-router"
+import MainLayout from "./layouts/MainLayout"
+import Home from "./pages/Home"
+import Shop from "./pages/Shop"
+import ProductDetails from "./pages/ProductDetails"
+import Login from "./pages/Login"
+import Signup from "./pages/Signup"
+import Cart from "./pages/Cart"
+import Checkout from "./pages/Checkout"
+import Orders from "./pages/Orders"
+import NotFound from "./pages/NotFound"
 
 function App() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="bg-surface p-8 rounded-card border border-border text-center">
-        <h1 className="text-4xl font-display font-bold text-primary mb-2">
-          WANTERA
-        </h1>
-        <p className="text-text-muted mb-4">Want It. Find It. Love It.</p>
-        <Button>Shop Now</Button>
-      </div>
-    </div>
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/product/:slug" element={<ProductDetails />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   )
 }
 
