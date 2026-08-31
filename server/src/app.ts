@@ -24,7 +24,7 @@ const app = express()
 app.set("trust proxy", 1)
 // Middleware — runs on every request, in order
 app.use(cors({
-  origin: "http://localhost:5173", // our Vite frontend, during development
+  origin: ["http://localhost:5173", "https://wantera-ecommerce.vercel.app"] // our Vite frontend, during development
   credentials: true, // allows cookies (needed for our auth tokens later)
 }))
 app.use(express.json()) // parses incoming JSON request bodies
