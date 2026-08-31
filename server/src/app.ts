@@ -21,6 +21,7 @@ import rateLimit from "express-rate-limit"
 
 const app = express()
 
+app.set("trust proxy", 1)
 // Middleware — runs on every request, in order
 app.use(cors({
   origin: "http://localhost:5173", // our Vite frontend, during development
