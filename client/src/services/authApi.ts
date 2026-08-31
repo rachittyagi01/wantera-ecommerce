@@ -22,6 +22,23 @@ interface LoginData {
   password: string
 }
 
+interface RefreshResponse {
+  message: string
+  accessToken: string
+}
+
+interface MeResponse {
+  user: {
+    id: string
+    name: string
+    email: string
+    role: "USER" | "ADMIN"
+    profileImage?: string
+    isVerified: boolean
+    createdAt: string
+  }
+}
+
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     signup: builder.mutation<AuthResponse, SignupData>({
@@ -44,7 +61,22 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
+    refresh: builder.mutation<RefreshResponse, void>({
+      query: () => ({
+        url: "/auth/refresh",
+        method: "POST",
+      }),
+    }),
+    getMe: builder.query<MeResponse, void>({
+      query: () => "/auth/me",
+    }),
   }),
 })
 
-export const { useSignupMutation, useLoginMutation, useLogoutApiMutation } = authApi
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useLogoutApiMutation,
+  useRefreshMutation,
+  useGetMeQuery,
+} = authApi
