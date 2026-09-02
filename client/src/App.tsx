@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout"
 import Orders from "./pages/Orders"
 import NotFound from "./pages/NotFound"
 import Wishlist from "./pages/Wishlist"
+import CheckoutPayment from "./pages/CheckoutPayment"
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/checkout/payment" element={<CheckoutPayment />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
