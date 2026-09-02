@@ -1,12 +1,14 @@
 import { useParams, Link, useNavigate } from "react-router"
 import { useGetProductBySlugQuery } from "@/services/productsApi"
 import { useAddToCartMutation } from "@/services/cartApi"
+import { useAddToWishlistMutation } from "@/services/wishlistApi"
 import { useAppSelector } from "@/store/hooks"
 
 export default function ProductDetails() {
   const { slug } = useParams<{ slug: string }>()
   const { data, isLoading, isError } = useGetProductBySlugQuery(slug!)
   const [addToCart, { isLoading: isAdding }] = useAddToCartMutation()
+  const [addToWishlist, { isLoading: isAddingToWishlist }] = useAddToWishlistMutation()
   const user = useAppSelector((state) => state.auth.user)
   const navigate = useNavigate()
 
@@ -42,6 +44,19 @@ export default function ProductDetails() {
           ? (err.data as { message?: string })?.message
           : "Failed to add to cart"
       alert(message || "Failed to add to cart")
+    }
+  }
+
+  async function handleAddToWishlist() {
+    if (!user) {
+      navigate("/login")
+      return
+    }
+    try {
+      await addToWishlist(product._id).unwrap()
+      alert("Added to wishlist!")
+    } catch {
+      alert("Failed to add to wishlist")
     }
   }
 
@@ -81,8 +96,12 @@ export default function ProductDetails() {
             >
               {isAdding ? "Adding..." : "Add to Cart"}
             </button>
-            <button className="border border-border hover:bg-surface px-8 py-3 rounded-default font-medium">
-              Add to Wishlist
+            <button
+              onClick={handleAddToWishlist}
+              disabled={isAddingToWishlist}
+              className="border border-border hover:bg-surface px-8 py-3 rounded-default font-medium"
+            >
+              {isAddingToWishlist ? "Adding..." : "Add to Wishlist"}
             </button>
           </div>
         </div>
