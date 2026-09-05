@@ -13,6 +13,7 @@ import Wishlist from "./pages/Wishlist"
 import CheckoutPayment from "./pages/CheckoutPayment"
 import OrderConfirmation from "./pages/OrderConfirmation"
 import OrderDetails from "./pages/OrderDetails"
+import Account from "./pages/Account"
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
         <Route path="/checkout/payment" element={<CheckoutPayment />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
+        <Route path="/account" element={<Account />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

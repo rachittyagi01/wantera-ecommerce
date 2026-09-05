@@ -1,42 +1,42 @@
-import { api } from "./api"
+import { api } from "./api";
 
 interface AuthResponse {
-  message: string
-  accessToken: string
+  message: string;
+  accessToken: string;
   user: {
-    id: string
-    name: string
-    email: string
-    role: "USER" | "ADMIN"
-  }
+    id: string;
+    name: string;
+    email: string;
+    role: "USER" | "ADMIN";
+  };
 }
 
 interface SignupData {
-  name: string
-  email: string
-  password: string
+  name: string;
+  email: string;
+  password: string;
 }
 
 interface LoginData {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 interface RefreshResponse {
-  message: string
-  accessToken: string
+  message: string;
+  accessToken: string;
 }
 
 interface MeResponse {
   user: {
-    id: string
-    name: string
-    email: string
-    role: "USER" | "ADMIN"
-    profileImage?: string
-    isVerified: boolean
-    createdAt: string
-  }
+    id: string;
+    name: string;
+    email: string;
+    role: "USER" | "ADMIN";
+    profileImage?: string;
+    isVerified: boolean;
+    createdAt: string;
+  };
 }
 
 export const authApi = api.injectEndpoints({
@@ -61,6 +61,27 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
+    updateProfile: builder.mutation<
+      { message: string; user: MeResponse["user"] },
+      { name?: string; profileImage?: string }
+    >({
+      query: (body) => ({
+        url: "/auth/me",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+    changePassword: builder.mutation<
+      { message: string },
+      { currentPassword: string; newPassword: string }
+    >({
+      query: (body) => ({
+        url: "/auth/change-password",
+        method: "PUT",
+        body,
+      }),
+    }),
     refresh: builder.mutation<RefreshResponse, void>({
       query: () => ({
         url: "/auth/refresh",
@@ -71,7 +92,7 @@ export const authApi = api.injectEndpoints({
       query: () => "/auth/me",
     }),
   }),
-})
+});
 
 export const {
   useSignupMutation,
@@ -79,4 +100,6 @@ export const {
   useLogoutApiMutation,
   useRefreshMutation,
   useGetMeQuery,
-} = authApi
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
+} = authApi;
