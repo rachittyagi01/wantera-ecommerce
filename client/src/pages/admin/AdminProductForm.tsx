@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate, Link } from "react-router"
-import { useGetProductBySlugQuery, useCreateProductMutation, useUpdateProductMutation } from "@/services/productsApi"
+import { useCreateProductMutation, useUpdateProductMutation } from "@/services/productsApi"
 import { useGetCategoriesQuery } from "@/services/categoriesApi"
 import { useUploadImageMutation } from "@/services/uploadApi"
 import { useGetProductsQuery } from "@/services/productsApi"
