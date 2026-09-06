@@ -59,7 +59,7 @@ export default function MainLayout() {
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 z-50 bg-background">
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium">{user.name}</p>
                   <p className="text-xs text-text-muted">{user.email}</p>

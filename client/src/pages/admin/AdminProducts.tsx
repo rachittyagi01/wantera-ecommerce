@@ -17,39 +17,29 @@ export default function AdminProducts() {
 
   return (
     <div className="px-6 py-10 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-display font-bold">Manage Products</h1>
-        <Link
-          to="/admin/products/new"
-          className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-default text-sm font-medium"
-        >
-          + Add Product
-          <div className="flex justify-between items-center  mb-8">
-            <h1 className="text-2xl font-display font-bold">Manage Products</h1>
-            <div className="flex gap-3">
-              <Link
-                to="/admin/categories"
-                className="border border-border hover:bg-amber-300 px-4 py-2 rounded-default text-sm font-medium"
-              >
-                Manage Categories
-              </Link>
-              <Link
-                to="/admin/products/new"
-                className="bg-primary hover:bg-amber-300 text-white px-4 py-2 rounded-default text-sm font-medium"
-              >
-                + Add Product
-
-              </Link>
-            </div>
-          </div>
-        </Link>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <h1 className="text-2xl font-display font-bold text-secondary">Manage Products</h1>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            to="/admin/categories"
+            className="border border-border hover:bg-amber-300 px-4 py-2 rounded-default text-sm font-medium whitespace-nowrap"
+          >
+            Manage Categories
+          </Link>
+          <Link
+            to="/admin/products/new"
+            className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-default text-sm font-medium whitespace-nowrap"
+          >
+            + Add Product
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
         <p className="text-text-muted">Loading products...</p>
       ) : (
-        <div className="border border-border rounded-card overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="border border-border rounded-card overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
             <thead className="bg-surface text-left">
               <tr>
                 <th className="p-3">Product</th>
