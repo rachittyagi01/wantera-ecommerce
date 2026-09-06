@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Types } from "mongoose"
 
+interface ISpecification {
+  key: string
+  value: string
+}
+
 export interface IProduct extends Document {
   name: string
   slug: string
@@ -14,6 +19,7 @@ export interface IProduct extends Document {
   ratings: number
   reviewCount: number
   featured: boolean
+  specifications?: ISpecification[]
   createdAt: Date
   updatedAt: Date
 }
@@ -50,7 +56,7 @@ const productSchema = new Schema<IProduct>(
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: "Category", // this creates the actual link to the Category collection
+      ref: "Category",
       required: [true, "Category is required"],
     },
     brand: {
@@ -65,7 +71,7 @@ const productSchema = new Schema<IProduct>(
     },
     isActive: {
       type: Boolean,
-      default: true, // "deactivate" instead of delete — from our Phase 0 planning
+      default: true,
     },
     ratings: {
       type: Number,
@@ -81,11 +87,16 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       default: false,
     },
+    specifications: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
   },
   { timestamps: true }
 )
 
-// Index for fast text search across name and description (used in Phase 12 — Search)
 productSchema.index({ name: "text", description: "text" })
 
 export const Product = mongoose.model<IProduct>("Product", productSchema)

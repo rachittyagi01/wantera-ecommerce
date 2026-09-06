@@ -13,6 +13,7 @@ export interface Product {
   ratings: number;
   reviewCount: number;
   featured: boolean;
+  specifications?: { key: string; value: string }[];
 }
 
 interface ProductsResponse {
@@ -31,6 +32,7 @@ interface ProductInput {
   stock: number;
   brand?: string;
   images?: string[];
+  specifications?: { key: string; value: string }[];
 }
 
 export const productsApi = api.injectEndpoints({

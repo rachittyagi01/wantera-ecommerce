@@ -128,6 +128,22 @@ export default function ProductDetails() {
 
           <p className="text-text mb-6">{product.description}</p>
 
+          {product.specifications && product.specifications.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-sm mb-2">Specifications</h3>
+              <table className="w-full text-sm">
+                <tbody>
+                  {product.specifications.map((spec, i) => (
+                    <tr key={i} className="border-b border-border">
+                      <td className="py-2 pr-4 text-text-muted font-medium">{spec.key}</td>
+                      <td className="py-2">{spec.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <p className={`text-sm font-medium mb-6 ${inStock ? "text-success" : "text-error"}`}>
             {inStock ? `In Stock (${product.stock} available)` : "Out of Stock"}
           </p>

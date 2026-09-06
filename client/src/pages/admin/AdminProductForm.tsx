@@ -3,10 +3,10 @@ import { useParams, useNavigate, Link } from "react-router";
 import {
   useCreateProductMutation,
   useUpdateProductMutation,
+  useGetProductsQuery,
 } from "@/services/productsApi";
 import { useGetCategoriesQuery } from "@/services/categoriesApi";
 import { useUploadImageMutation } from "@/services/uploadApi";
-import { useGetProductsQuery } from "@/services/productsApi";
 
 export default function AdminProductForm() {
   const { id } = useParams<{ id: string }>();
@@ -32,9 +32,9 @@ export default function AdminProductForm() {
     brand: "",
   });
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [specifications, setSpecifications] = useState<{ key: string; value: string }[]>([]);
   const [error, setError] = useState("");
 
-  // If editing, pre-fill the form once we find the matching product
   useEffect(() => {
     if (isEditMode && productsData) {
       const existing = productsData.products.find((p) => p._id === id);
@@ -51,6 +51,7 @@ export default function AdminProductForm() {
           brand: "",
         });
         setImageUrls(existing.images || []);
+        setSpecifications(existing.specifications || []);
       }
     }
   }, [isEditMode, productsData, id]);
@@ -76,6 +77,20 @@ export default function AdminProductForm() {
     setImageUrls((prev) => prev.filter((url) => url !== urlToRemove));
   }
 
+  function addSpecRow() {
+    setSpecifications((prev) => [...prev, { key: "", value: "" }]);
+  }
+
+  function updateSpecRow(index: number, field: "key" | "value", value: string) {
+    setSpecifications((prev) =>
+      prev.map((spec, i) => (i === index ? { ...spec, [field]: value } : spec))
+    );
+  }
+
+  function removeSpecRow(index: number) {
+    setSpecifications((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -96,6 +111,7 @@ export default function AdminProductForm() {
       stock: Number(form.stock),
       brand: form.brand || undefined,
       images: imageUrls,
+      specifications: specifications.filter((s) => s.key.trim() && s.value.trim()),
     };
 
     try {
@@ -215,6 +231,42 @@ export default function AdminProductForm() {
             onChange={(e) => setForm({ ...form, brand: e.target.value })}
             className="w-full border border-border rounded-default px-3 py-2"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Specifications (optional)</label>
+          <div className="space-y-2">
+            {specifications.map((spec, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  placeholder="e.g. Battery Life"
+                  value={spec.key}
+                  onChange={(e) => updateSpecRow(index, "key", e.target.value)}
+                  className="flex-1 border border-border rounded-default px-3 py-2 text-sm"
+                />
+                <input
+                  placeholder="e.g. 30 hours"
+                  value={spec.value}
+                  onChange={(e) => updateSpecRow(index, "value", e.target.value)}
+                  className="flex-1 border border-border rounded-default px-3 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSpecRow(index)}
+                  className="text-error text-sm px-2"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={addSpecRow}
+            className="text-primary text-sm mt-2 hover:underline"
+          >
+            + Add Specification
+          </button>
         </div>
 
         <div>
