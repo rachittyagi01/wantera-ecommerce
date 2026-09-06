@@ -19,6 +19,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
 import AdminCategories from "./pages/admin/AdminCategories"
+import AdminOrders from "./pages/admin/AdminOrders"
+import AdminCoupons from "./pages/admin/AdminCoupons"
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
           <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
         </Route>
         <Route path="/admin/categories" element={<AdminCategories />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/coupons" element={<AdminCoupons />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

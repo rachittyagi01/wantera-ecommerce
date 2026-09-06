@@ -30,6 +30,10 @@ export interface Order {
   createdAt: string
 }
 
+interface AdminOrder extends Order {
+  user: { name: string; email: string }
+}
+
 export const ordersApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getMyOrders: builder.query<{ orders: Order[] }, void>({
@@ -40,7 +44,24 @@ export const ordersApi = api.injectEndpoints({
       query: (id) => `/orders/my-orders/${id}`,
       providesTags: ["Order"],
     }),
+    getAllOrders: builder.query<{ orders: AdminOrder[] }, void>({
+      query: () => "/orders/admin/all",
+      providesTags: ["Order"],
+    }),
+    updateOrderStatus: builder.mutation<{ order: Order }, { id: string; orderStatus: string }>({
+      query: ({ id, orderStatus }) => ({
+        url: `/orders/admin/${id}/status`,
+        method: "PUT",
+        body: { orderStatus },
+      }),
+      invalidatesTags: ["Order"],
+    }),
   }),
 })
 
-export const { useGetMyOrdersQuery, useGetMyOrderByIdQuery } = ordersApi
+export const {
+  useGetMyOrdersQuery,
+  useGetMyOrderByIdQuery,
+  useGetAllOrdersQuery,
+  useUpdateOrderStatusMutation,
+} = ordersApi
