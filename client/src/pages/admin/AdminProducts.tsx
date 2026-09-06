@@ -1,15 +1,18 @@
-import { useState } from "react"
-import { Link } from "react-router"
-import { useGetProductsQuery, useDeleteProductMutation } from "@/services/productsApi"
+import { useState } from "react";
+import { Link } from "react-router";
+import {
+  useGetProductsQuery,
+  useDeleteProductMutation,
+} from "@/services/productsApi";
 
 export default function AdminProducts() {
-  const { data, isLoading } = useGetProductsQuery({ limit: "50" })
-  const [deleteProduct] = useDeleteProductMutation()
-  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const { data, isLoading } = useGetProductsQuery({ limit: "50" });
+  const [deleteProduct] = useDeleteProductMutation();
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   async function handleDeactivate(id: string) {
-    await deleteProduct(id).unwrap()
-    setConfirmingId(null)
+    await deleteProduct(id).unwrap();
+    setConfirmingId(null);
   }
 
   return (
@@ -21,6 +24,24 @@ export default function AdminProducts() {
           className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-default text-sm font-medium"
         >
           + Add Product
+          <div className="flex justify-between items-center  mb-8">
+            <h1 className="text-2xl font-display font-bold">Manage Products</h1>
+            <div className="flex gap-3">
+              <Link
+                to="/admin/categories"
+                className="border border-border hover:bg-amber-300 px-4 py-2 rounded-default text-sm font-medium"
+              >
+                Manage Categories
+              </Link>
+              <Link
+                to="/admin/products/new"
+                className="bg-primary hover:bg-amber-300 text-white px-4 py-2 rounded-default text-sm font-medium"
+              >
+                + Add Product
+
+              </Link>
+            </div>
+          </div>
         </Link>
       </div>
 
@@ -45,15 +66,25 @@ export default function AdminProducts() {
                   <td className="p-3 flex items-center gap-3">
                     <div className="w-10 h-10 bg-surface rounded-default overflow-hidden flex-shrink-0">
                       {product.images[0] && (
-                        <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={product.images[0]}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       )}
                     </div>
                     {product.name}
                   </td>
-                  <td className="p-3 text-text-muted">{product.category?.name}</td>
+                  <td className="p-3 text-text-muted">
+                    {product.category?.name}
+                  </td>
                   <td className="p-3">₹{product.price}</td>
                   <td className="p-3">
-                    <span className={product.stock <= 10 ? "text-warning font-medium" : ""}>
+                    <span
+                      className={
+                        product.stock <= 10 ? "text-warning font-medium" : ""
+                      }
+                    >
                       {product.stock}
                     </span>
                   </td>
@@ -61,20 +92,32 @@ export default function AdminProducts() {
                     <span className="text-success text-xs">Active</span>
                   </td>
                   <td className="p-3 text-right space-x-3">
-                    <Link to={`/admin/products/${product._id}/edit`} className="text-primary text-xs hover:underline">
+                    <Link
+                      to={`/admin/products/${product._id}/edit`}
+                      className="text-primary text-xs hover:underline"
+                    >
                       Edit
                     </Link>
                     {confirmingId === product._id ? (
                       <>
-                        <button onClick={() => handleDeactivate(product._id)} className="text-error text-xs hover:underline">
+                        <button
+                          onClick={() => handleDeactivate(product._id)}
+                          className="text-error text-xs hover:underline"
+                        >
                           Confirm
                         </button>
-                        <button onClick={() => setConfirmingId(null)} className="text-text-muted text-xs hover:underline">
+                        <button
+                          onClick={() => setConfirmingId(null)}
+                          className="text-text-muted text-xs hover:underline"
+                        >
                           Cancel
                         </button>
                       </>
                     ) : (
-                      <button onClick={() => setConfirmingId(product._id)} className="text-error text-xs hover:underline">
+                      <button
+                        onClick={() => setConfirmingId(product._id)}
+                        className="text-error text-xs hover:underline"
+                      >
                         Deactivate
                       </button>
                     )}
@@ -86,5 +129,5 @@ export default function AdminProducts() {
         </div>
       )}
     </div>
-  )
+  );
 }
