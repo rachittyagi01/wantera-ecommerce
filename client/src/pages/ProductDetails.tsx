@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useParams, Link, useNavigate } from "react-router"
 import { useGetProductBySlugQuery } from "@/services/productsApi"
 import { useAddToCartMutation } from "@/services/cartApi"
@@ -11,6 +12,7 @@ export default function ProductDetails() {
   const [addToWishlist, { isLoading: isAddingToWishlist }] = useAddToWishlistMutation()
   const user = useAppSelector((state) => state.auth.user)
   const navigate = useNavigate()
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   if (isLoading) {
     return <div className="px-6 py-16 text-text-muted">Loading product...</div>
@@ -63,11 +65,53 @@ export default function ProductDetails() {
   return (
     <div className="px-6 py-10 max-w-5xl mx-auto">
       <div className="grid md:grid-cols-2 gap-10">
-        <div className="bg-surface rounded-card aspect-square overflow-hidden flex items-center justify-center">
-          {product.images[0] ? (
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-text-muted">No image</span>
+        {/* Image gallery */}
+        <div>
+          <div
+            className="bg-surface rounded-card aspect-square overflow-hidden flex items-center justify-center touch-pan-y"
+            onTouchStart={(e) => {
+              const touch = e.touches[0]
+              ;(e.currentTarget as HTMLDivElement).dataset.startX = String(touch.clientX)
+            }}
+            onTouchEnd={(e) => {
+              const startX = Number((e.currentTarget as HTMLDivElement).dataset.startX || 0)
+              const endX = e.changedTouches[0].clientX
+              const diff = startX - endX
+
+              if (Math.abs(diff) > 50) {
+                if (diff > 0 && activeImageIndex < product.images.length - 1) {
+                  setActiveImageIndex((i) => i + 1)
+                } else if (diff < 0 && activeImageIndex > 0) {
+                  setActiveImageIndex((i) => i - 1)
+                }
+              }
+            }}
+          >
+            {product.images[activeImageIndex] ? (
+              <img
+                src={product.images[activeImageIndex]}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-text-muted">No image</span>
+            )}
+          </div>
+
+          {product.images.length > 1 && (
+            <div className="flex gap-2 mt-3 overflow-x-auto">
+              {product.images.map((img, index) => (
+                <button
+                  key={img + index}
+                  onClick={() => setActiveImageIndex(index)}
+                  className={`w-16 h-16 rounded-default overflow-hidden flex-shrink-0 border-2 ${
+                    index === activeImageIndex ? "border-primary" : "border-transparent"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 

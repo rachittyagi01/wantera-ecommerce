@@ -31,7 +31,7 @@ export default function AdminProductForm() {
     stock: "",
     brand: "",
   });
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   // If editing, pre-fill the form once we find the matching product
@@ -50,7 +50,7 @@ export default function AdminProductForm() {
           stock: String(existing.stock),
           brand: "",
         });
-        setImageUrl(existing.images[0] || "");
+        setImageUrls(existing.images || []);
       }
     }
   }, [isEditMode, productsData, id]);
@@ -64,10 +64,16 @@ export default function AdminProductForm() {
 
     try {
       const result = await uploadImage(formData).unwrap();
-      setImageUrl(result.url);
+      setImageUrls((prev) => [...prev, result.url]);
     } catch {
       setError("Image upload failed");
     }
+
+    e.target.value = "";
+  }
+
+  function handleRemoveImage(urlToRemove: string) {
+    setImageUrls((prev) => prev.filter((url) => url !== urlToRemove));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -89,7 +95,7 @@ export default function AdminProductForm() {
       category: form.category,
       stock: Number(form.stock),
       brand: form.brand || undefined,
-      images: imageUrl ? [imageUrl] : [],
+      images: imageUrls,
     };
 
     try {
@@ -213,7 +219,7 @@ export default function AdminProductForm() {
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Product Image
+            Product Images
           </label>
           <input
             type="file"
@@ -224,13 +230,30 @@ export default function AdminProductForm() {
           {uploading && (
             <p className="text-xs text-text-muted mt-1">Uploading...</p>
           )}
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="Preview"
-              className="w-24 h-24 object-cover rounded-default mt-2"
-            />
+
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              {imageUrls.map((url) => (
+                <div key={url} className="relative">
+                  <img
+                    src={url}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover rounded-default"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(url)}
+                    className="absolute -top-2 -right-2 bg-error text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
+          <p className="text-xs text-text-muted mt-2">
+            Upload one at a time — the first image becomes the main product photo.
+          </p>
         </div>
 
         {error && <p className="text-error text-sm">{error}</p>}
