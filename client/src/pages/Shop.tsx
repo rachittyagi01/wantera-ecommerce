@@ -1,36 +1,38 @@
-import { useState } from "react"
-import { Link, useSearchParams } from "react-router"
-import { useGetProductsQuery } from "@/services/productsApi"
-import { useGetCategoriesQuery } from "@/services/categoriesApi"
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router";
+import { useGetProductsQuery } from "@/services/productsApi";
+import { useGetCategoriesQuery } from "@/services/categoriesApi";
 
 export default function Shop() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [keywordInput, setKeywordInput] = useState(searchParams.get("keyword") || "")
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [keywordInput, setKeywordInput] = useState(
+    searchParams.get("keyword") || "",
+  );
 
-  const category = searchParams.get("category") || ""
-  const sort = searchParams.get("sort") || "newest"
+  const category = searchParams.get("category") || "";
+  const sort = searchParams.get("sort") || "newest";
 
-  const { data: categoriesData } = useGetCategoriesQuery()
+  const { data: categoriesData } = useGetCategoriesQuery();
   const { data, isLoading, isError } = useGetProductsQuery({
     keyword: searchParams.get("keyword") || "",
     category,
     sort,
     limit: "12",
-  })
+  });
 
   function updateParam(key: string, value: string) {
-    const next = new URLSearchParams(searchParams)
+    const next = new URLSearchParams(searchParams);
     if (value) {
-      next.set(key, value)
+      next.set(key, value);
     } else {
-      next.delete(key)
+      next.delete(key);
     }
-    setSearchParams(next)
+    setSearchParams(next);
   }
 
   function handleSearchSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    updateParam("keyword", keywordInput)
+    e.preventDefault();
+    updateParam("keyword", keywordInput);
   }
 
   return (
@@ -62,7 +64,9 @@ export default function Shop() {
         >
           <option value="">All Categories</option>
           {categoriesData?.categories.map((c) => (
-            <option key={c._id} value={c.slug}>{c.name}</option>
+            <option key={c._id} value={c.slug}>
+              {c.name}
+            </option>
           ))}
         </select>
 
@@ -90,28 +94,37 @@ export default function Shop() {
           <Link
             key={product._id}
             to={`/product/${product.slug}`}
-            className="border border-border rounded-card p-4 hover:shadow-md transition-shadow"
+            className="group bg-background rounded-card overflow-hidden border border-border hover:border-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
           >
-            <div className="bg-surface aspect-square rounded-default mb-3 overflow-hidden flex items-center justify-center text-text-muted text-sm">
+            <div className="bg-surface aspect-square overflow-hidden flex items-center justify-center text-text-muted text-sm">
               {product.images[0] ? (
-                <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               ) : (
                 "No image"
               )}
             </div>
-            <h3 className="font-medium text-sm mb-1">{product.name}</h3>
-            <p className="text-primary font-semibold">
-              ₹{product.discountPrice ?? product.price}
-            </p>
+            <div className="p-4">
+              <h3 className="font-medium text-sm mb-1 truncate">
+                {product.name}
+              </h3>
+              <p className="text-primary font-semibold">
+                ₹{product.discountPrice ?? product.price}
+              </p>
+            </div>
           </Link>
         ))}
       </div>
 
       {data && data.totalPages > 1 && (
         <p className="text-text-muted text-sm mt-8 text-center">
-          Page {data.page} of {data.totalPages} — {data.totalProducts} products total
+          Page {data.page} of {data.totalPages} — {data.totalProducts} products
+          total
         </p>
       )}
     </div>
-  )
+  );
 }
