@@ -1,5 +1,6 @@
 import { Link } from "react-router"
 import { useGetCartQuery, useUpdateCartItemMutation, useRemoveFromCartMutation } from "@/services/cartApi"
+import { toast } from "sonner"
 import { useAppSelector } from "@/store/hooks"
 
 export default function Cart() {
@@ -46,7 +47,7 @@ export default function Cart() {
         err && typeof err === "object" && "data" in err
           ? (err.data as { message?: string })?.message
           : "Failed to update quantity"
-      alert(message || "Failed to update quantity")
+      toast.error(message || "Failed to update quantity")
     }
   }
 

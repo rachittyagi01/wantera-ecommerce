@@ -1,4 +1,5 @@
 import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/ordersApi"
+import { toast } from "sonner"
 
 // Matches the exact allowedTransitions map from your Phase 18 backend —
 // keeping the dropdown options in sync with what the server will actually accept
@@ -20,12 +21,13 @@ export default function AdminOrders() {
     if (!newStatus) return
     try {
       await updateStatus({ id: orderId, orderStatus: newStatus }).unwrap()
+      toast.success(`Order status updated to ${newStatus.replace(/_/g, " ")}`)
     } catch (err) {
       const message =
         err && typeof err === "object" && "data" in err
           ? (err.data as { message?: string })?.message
           : "Failed to update status"
-      alert(message || "Failed to update status")
+      toast.error(message || "Failed to update status")
     }
   }
 

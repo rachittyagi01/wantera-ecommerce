@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router";
+import { toast } from "sonner"
 import {
   useCreateProductMutation,
   useUpdateProductMutation,
@@ -120,7 +121,8 @@ export default function AdminProductForm() {
       } else {
         await createProduct(payload).unwrap();
       }
-      navigate("/admin/products");
+      toast.success(isEditMode ? "Product updated successfully" : "Product created successfully")
+navigate("/admin/products");
     } catch (err) {
       const message =
         err && typeof err === "object" && "data" in err

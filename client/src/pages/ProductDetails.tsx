@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useParams, Link, useNavigate } from "react-router"
 import { useGetProductBySlugQuery } from "@/services/productsApi"
 import { useAddToCartMutation } from "@/services/cartApi"
+import { toast } from "sonner"
 import { useAddToWishlistMutation } from "@/services/wishlistApi"
 import { useAppSelector } from "@/store/hooks"
 
@@ -45,7 +46,7 @@ export default function ProductDetails() {
         err && typeof err === "object" && "data" in err
           ? (err.data as { message?: string })?.message
           : "Failed to add to cart"
-      alert(message || "Failed to add to cart")
+      toast.error(message || "Failed to add to cart")
     }
   }
 
@@ -56,9 +57,9 @@ export default function ProductDetails() {
     }
     try {
       await addToWishlist(product._id).unwrap()
-      alert("Added to wishlist!")
+      toast.success("Added to wishlist!")
     } catch {
-      alert("Failed to add to wishlist")
+      toast.error("Failed to add to wishlist")
     }
   }
 

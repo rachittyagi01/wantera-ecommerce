@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router"
+import { toast } from "sonner"
 import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation } from "@/services/categoriesApi"
 
 export default function AdminCategories() {
@@ -18,6 +19,7 @@ export default function AdminCategories() {
       await createCategory({ name, description: description || undefined }).unwrap()
       setName("")
       setDescription("")
+      toast.success("Category created successfully")
     } catch (err) {
       const message =
         err && typeof err === "object" && "data" in err
@@ -31,7 +33,7 @@ export default function AdminCategories() {
     try {
       await deleteCategory(id).unwrap()
     } catch {
-      alert("Failed to delete category — it may still have products assigned to it.")
+      toast.error("Failed to delete category — it may still have products assigned to it.")
     }
   }
 
