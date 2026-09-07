@@ -8,6 +8,7 @@ import productRoutes from "./routes/productRoutes"
 import uploadRoutes from "./routes/uploadRoutes"
 import wishlistRoutes from "./routes/wishlistRoutes"
 import cartRoutes from "./routes/cartRoutes"
+import reviewRoutes from "./routes/reviewRoutes"
 import addressRoutes from "./routes/addressRoutes"
 import checkoutRoutes from "./routes/checkoutRoutes"
 import couponRoutes from "./routes/couponRoutes"
@@ -17,6 +18,7 @@ import adminRoutes from "./routes/adminRoutes"
 import helmet from "helmet"
 import { sanitizeInput } from "./middleware/sanitize"
 import rateLimit from "express-rate-limit"
+
 
 
 const app = express()
@@ -61,6 +63,7 @@ app.use("/api/products", productRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/wishlist", wishlistRoutes)
 app.use("/api/cart", cartRoutes)
+app.use("/api/reviews", reviewRoutes)
 app.use("/api/addresses", addressRoutes)
 app.use("/api/checkout", checkoutRoutes)
 app.use("/api/coupons", couponRoutes)
