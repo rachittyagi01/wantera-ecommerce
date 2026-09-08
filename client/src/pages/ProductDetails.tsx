@@ -5,6 +5,8 @@ import { useAddToCartMutation } from "@/services/cartApi";
 import { toast } from "sonner";
 import { useAddToWishlistMutation } from "@/services/wishlistApi";
 import { useAppSelector } from "@/store/hooks";
+import { useGetProductReviewsQuery, useCreateReviewMutation } from "@/services/reviewsApi";
+import { StarRating } from "@/components/StarRating";
 
 export default function ProductDetails() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,6 +17,8 @@ export default function ProductDetails() {
   const user = useAppSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
 
   if (isLoading) {
     return <div className="px-6 py-16 text-text-muted">Loading product...</div>;
@@ -66,6 +70,29 @@ export default function ProductDetails() {
       toast.error("Failed to add to wishlist");
     }
   }
+
+  async function handleSubmitReview(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    try {
+      await createReview({ productId: product._id, rating: reviewRating, comment: reviewComment }).unwrap();
+      toast.success("Review submitted!");
+      setReviewComment("");
+      setReviewRating(5);
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "data" in err
+          ? (err.data as { message?: string })?.message
+          : "Failed to submit review";
+      toast.error(message || "Failed to submit review");
+    }
+  }
+
+  const { data: reviewsData } = useGetProductReviewsQuery(product._id);
+  const [createReview, { isLoading: submittingReview }] = useCreateReviewMutation();
 
   return (
     <div className="px-6 py-10 max-w-5xl mx-auto">
@@ -134,9 +161,18 @@ export default function ProductDetails() {
           <p className="text-text-muted text-sm mb-2">
             {product.category.name}
           </p>
-          <h1 className="text-3xl font-display font-bold mb-4">
+          <h1 className="text-3xl font-display font-bold mb-2">
             {product.name}
           </h1>
+
+          {product.reviewCount > 0 && (
+            <div className="flex items-center gap-2 mb-4">
+              <StarRating rating={product.ratings} size="md" />
+              <span className="text-sm text-text-muted">
+                {product.ratings.toFixed(1)} ({product.reviewCount} review{product.reviewCount > 1 ? "s" : ""})
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl font-bold text-primary">
@@ -192,6 +228,64 @@ export default function ProductDetails() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Reviews section */}
+      <div className="mt-16 pt-10 border-t border-border">
+        <h2 className="text-xl font-display font-bold mb-6">Customer Reviews</h2>
+
+        {user && (
+          <form onSubmit={handleSubmitReview} className="border border-border rounded-card p-5 mb-8">
+            <h3 className="font-medium mb-3">Write a Review</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm text-text-muted">Your rating:</span>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setReviewRating(star)}
+                  className={`text-xl ${star <= reviewRating ? "text-warning" : "text-border"}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              required
+              rows={3}
+              placeholder="Share your experience with this product..."
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              className="w-full border border-border rounded-default px-3 py-2 text-sm mb-3"
+            />
+            <button
+              type="submit"
+              disabled={submittingReview}
+              className="bg-primary hover:bg-primary-hover disabled:opacity-50 text-white px-5 py-2 rounded-default text-sm font-medium"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+        )}
+
+        {reviewsData && reviewsData.reviews.length === 0 ? (
+          <p className="text-text-muted text-sm">No reviews yet. Be the first to review this product!</p>
+        ) : (
+          <div className="space-y-5">
+            {reviewsData?.reviews.map((review) => (
+              <div key={review._id} className="border-b border-border pb-5">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="font-medium text-sm">{review.user.name}</p>
+                  <p className="text-xs text-text-muted">
+                    {new Date(review.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                <StarRating rating={review.rating} />
+                <p className="text-sm text-text mt-2">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
