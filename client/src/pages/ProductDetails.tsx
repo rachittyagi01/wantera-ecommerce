@@ -5,7 +5,10 @@ import { useAddToCartMutation } from "@/services/cartApi";
 import { toast } from "sonner";
 import { useAddToWishlistMutation } from "@/services/wishlistApi";
 import { useAppSelector } from "@/store/hooks";
-import { useGetProductReviewsQuery, useCreateReviewMutation } from "@/services/reviewsApi";
+import {
+  useGetProductReviewsQuery,
+  useCreateReviewMutation,
+} from "@/services/reviewsApi";
 import { StarRating } from "@/components/StarRating";
 
 export default function ProductDetails() {
@@ -19,6 +22,11 @@ export default function ProductDetails() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
+  const { data: reviewsData } = useGetProductReviewsQuery(slug || "", {
+    skip: !slug || isLoading || isError,
+  });
+  const [createReview, { isLoading: submittingReview }] =
+    useCreateReviewMutation();
 
   if (isLoading) {
     return <div className="px-6 py-16 text-text-muted">Loading product...</div>;
@@ -78,7 +86,11 @@ export default function ProductDetails() {
       return;
     }
     try {
-      await createReview({ productId: product._id, rating: reviewRating, comment: reviewComment }).unwrap();
+      await createReview({
+        productId: product._id,
+        rating: reviewRating,
+        comment: reviewComment,
+      }).unwrap();
       toast.success("Review submitted!");
       setReviewComment("");
       setReviewRating(5);
@@ -90,9 +102,6 @@ export default function ProductDetails() {
       toast.error(message || "Failed to submit review");
     }
   }
-
-  const { data: reviewsData } = useGetProductReviewsQuery(product._id);
-  const [createReview, { isLoading: submittingReview }] = useCreateReviewMutation();
 
   return (
     <div className="px-6 py-10 max-w-5xl mx-auto">
@@ -169,7 +178,8 @@ export default function ProductDetails() {
             <div className="flex items-center gap-2 mb-4">
               <StarRating rating={product.ratings} size="md" />
               <span className="text-sm text-text-muted">
-                {product.ratings.toFixed(1)} ({product.reviewCount} review{product.reviewCount > 1 ? "s" : ""})
+                {product.ratings.toFixed(1)} ({product.reviewCount} review
+                {product.reviewCount > 1 ? "s" : ""})
               </span>
             </div>
           )}
@@ -232,10 +242,15 @@ export default function ProductDetails() {
 
       {/* Reviews section */}
       <div className="mt-16 pt-10 border-t border-border">
-        <h2 className="text-xl font-display font-bold mb-6">Customer Reviews</h2>
+        <h2 className="text-xl font-display font-bold mb-6">
+          Customer Reviews
+        </h2>
 
         {user && (
-          <form onSubmit={handleSubmitReview} className="border border-border rounded-card p-5 mb-8">
+          <form
+            onSubmit={handleSubmitReview}
+            className="border border-border rounded-card p-5 mb-8"
+          >
             <h3 className="font-medium mb-3">Write a Review</h3>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-sm text-text-muted">Your rating:</span>
@@ -269,7 +284,9 @@ export default function ProductDetails() {
         )}
 
         {reviewsData && reviewsData.reviews.length === 0 ? (
-          <p className="text-text-muted text-sm">No reviews yet. Be the first to review this product!</p>
+          <p className="text-text-muted text-sm">
+            No reviews yet. Be the first to review this product!
+          </p>
         ) : (
           <div className="space-y-5">
             {reviewsData?.reviews.map((review) => (
@@ -277,7 +294,11 @@ export default function ProductDetails() {
                 <div className="flex items-center justify-between mb-1">
                   <p className="font-medium text-sm">{review.user.name}</p>
                   <p className="text-xs text-text-muted">
-                    {new Date(review.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    {new Date(review.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
                 <StarRating rating={review.rating} />
