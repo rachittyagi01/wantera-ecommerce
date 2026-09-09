@@ -22,9 +22,9 @@ export default function ProductDetails() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
-  const { data: reviewsData } = useGetProductReviewsQuery(slug || "", {
-    skip: !slug || isLoading || isError,
-  });
+  const { data: reviewsData } = useGetProductReviewsQuery(data?.product._id || "", {
+  skip: !data?.product._id,
+});
   const [createReview, { isLoading: submittingReview }] =
     useCreateReviewMutation();
 
