@@ -228,5 +228,5 @@ Currently working on:
 
 **Name:** Rachit Tyagi
 **GitHub:** [rachittyagi01](https://github.com/rachittyagi01)
-**LinkedIn:**
-**Email:**
+**LinkedIn:** [Rachit Tyagi] (https://linkedin.com/in/rachittyagi1200)
+**Email:** tyagirachitrt@gmail.com
