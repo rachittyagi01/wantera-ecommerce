@@ -30,10 +30,13 @@ This project is still evolving — see the Roadmap section below for what's next
 
 ### Customer Experience
 
-| Home | Shop |
+| Home | Home |
 |---|---|
 | ![Home Page](docs/screenshots/home.png) | ![Home Page](docs/screenshots/Home_1.png) |
-[Shop with filters](docs/screenshots/shop.png) |
+
+| Shop with filters | Product Details |
+|---|---|
+| ![Shop with filters](docs/screenshots/shop.png) | ![Product Details](docs/screenshots/product-details.png) |
 
 | Product Details | Product Category Filter |
 |---|---|
