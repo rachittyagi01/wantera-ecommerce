@@ -1,3 +1,5 @@
+import crypto from "crypto"
+import { sendEmail } from "../utils/sendEmail"
 import { Request, Response } from "express"
 import jwt from "jsonwebtoken"
 import { User } from "../models/User"
@@ -23,6 +25,24 @@ export async function signup(req: Request, res: Response) {
     }
 
     const user = await User.create({ name, email, password })
+
+    // Generate a verification token and email it
+const verificationToken = crypto.randomBytes(32).toString("hex")
+user.verificationToken = verificationToken
+user.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+await user.save()
+
+const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`
+await sendEmail({
+  to: user.email,
+  subject: "Verify your WANTERA account",
+  html: `
+    <h2>Welcome to WANTERA, ${user.name}!</h2>
+    <p>Please verify your email address to complete your account setup.</p>
+    <a href="${verifyUrl}" style="background:#4338CA;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;">Verify Email</a>
+    <p>This link expires in 24 hours.</p>
+  `,
+})
 
     const payload = { userId: user._id.toString(), role: user.role }
     const accessToken = generateAccessToken(payload)
@@ -222,5 +242,34 @@ export async function changePassword(req: AuthRequest, res: Response) {
   } catch (error) {
     console.error("Change password error:", error)
     res.status(500).json({ message: "Failed to change password" })
+  }
+}
+
+export async function verifyEmail(req: Request, res: Response) {
+  try {
+    const { token } = req.body
+
+    if (!token) {
+      return res.status(400).json({ message: "Verification token is required" })
+    }
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: new Date() },
+    }).select("+verificationToken +verificationTokenExpiry")
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired verification link" })
+    }
+
+    user.isVerified = true
+    user.verificationToken = undefined
+    user.verificationTokenExpiry = undefined
+    await user.save()
+
+    res.json({ message: "Email verified successfully" })
+  } catch (error) {
+    console.error("Verify email error:", error)
+    res.status(500).json({ message: "Failed to verify email" })
   }
 }

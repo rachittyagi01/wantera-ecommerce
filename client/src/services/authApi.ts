@@ -39,6 +39,21 @@ interface MeResponse {
   };
 }
 
+interface UpdateProfileResponse {
+  message: string;
+  user: MeResponse["user"];
+}
+
+interface UpdateProfileInput {
+  name?: string;
+  profileImage?: string;
+}
+
+interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     signup: builder.mutation<AuthResponse, SignupData>({
@@ -61,10 +76,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
-    updateProfile: builder.mutation<
-      { message: string; user: MeResponse["user"] },
-      { name?: string; profileImage?: string }
-    >({
+    updateProfile: builder.mutation<UpdateProfileResponse, UpdateProfileInput>({
       query: (body) => ({
         url: "/auth/me",
         method: "PUT",
@@ -72,10 +84,7 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
-    changePassword: builder.mutation<
-      { message: string },
-      { currentPassword: string; newPassword: string }
-    >({
+    changePassword: builder.mutation<{ message: string }, ChangePasswordInput>({
       query: (body) => ({
         url: "/auth/change-password",
         method: "PUT",
@@ -91,6 +100,13 @@ export const authApi = api.injectEndpoints({
     getMe: builder.query<MeResponse, void>({
       query: () => "/auth/me",
     }),
+    verifyEmail: builder.mutation<{ message: string }, string>({
+      query: (token) => ({
+        url: "/auth/verify-email",
+        method: "POST",
+        body: { token },
+      }),
+    }),
   }),
 });
 
@@ -102,4 +118,5 @@ export const {
   useGetMeQuery,
   useUpdateProfileMutation,
   useChangePasswordMutation,
+  useVerifyEmailMutation,
 } = authApi;

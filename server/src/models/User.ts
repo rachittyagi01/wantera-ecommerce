@@ -8,6 +8,8 @@ export interface IUser extends Document {
   role: "USER" | "ADMIN"
   profileImage?: string
   isVerified: boolean
+  verificationToken?: string
+  verificationTokenExpiry?: Date
   createdAt: Date
   updatedAt: Date
   comparePassword(candidatePassword: string): Promise<boolean>
@@ -40,9 +42,17 @@ const userSchema = new Schema<IUser>(
     profileImage: {
       type: String,
     },
-    isVerified: {
+        isVerified: {
       type: Boolean,
       default: false,
+    },
+    verificationToken: {
+      type: String,
+      select: false,
+    },
+    verificationTokenExpiry: {
+      type: Date,
+      select: false,
     },
   },
   {
