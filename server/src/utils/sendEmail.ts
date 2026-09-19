@@ -1,4 +1,6 @@
-import { transporter } from "../config/mailer"
+import { Resend } from "resend"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface EmailOptions {
   to: string
@@ -8,15 +10,13 @@ interface EmailOptions {
 
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   try {
-    await transporter.sendMail({
-      from: `"WANTERA" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "WANTERA <onboarding@resend.dev>", // Resend's shared sending domain — works without domain verification
       to,
       subject,
       html,
     })
   } catch (error) {
-    // Log but don't throw — a failed email shouldn't crash the request that triggered it
-    // (e.g., signup should still succeed even if the welcome email fails to send)
     console.error("Email send error:", error)
   }
 }
