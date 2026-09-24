@@ -9,6 +9,7 @@ A full-stack e-commerce platform built from scratch using React, TypeScript, Nod
 
 > Note: the backend is hosted on Render's free tier, which spins down after inactivity — the first request after idle time may take 30–60 seconds to respond while it wakes up.
 
+
 ---
 
 ## Why I built this
