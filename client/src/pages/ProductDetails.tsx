@@ -22,9 +22,12 @@ export default function ProductDetails() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
-  const { data: reviewsData } = useGetProductReviewsQuery(data?.product._id || "", {
-  skip: !data?.product._id,
-});
+  const { data: reviewsData } = useGetProductReviewsQuery(
+    data?.product._id || "",
+    {
+      skip: !data?.product._id,
+    },
+  );
   const [createReview, { isLoading: submittingReview }] =
     useCreateReviewMutation();
 
@@ -292,7 +295,9 @@ export default function ProductDetails() {
             {reviewsData?.reviews.map((review) => (
               <div key={review._id} className="border-b border-border pb-5">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="font-medium text-sm">{review.user.name}</p>
+                  <p className="font-medium text-sm">
+                    {review.user?.name || "Anonymous"}
+                  </p>
                   <p className="text-xs text-text-muted">
                     {new Date(review.createdAt).toLocaleDateString("en-IN", {
                       day: "numeric",

@@ -2,7 +2,7 @@ import { api } from "./api"
 
 export interface Review {
   _id: string
-  user: { _id: string; name: string }
+  user: { _id: string; name: string } | null
   rating: number
   comment: string
   createdAt: string
