@@ -18,8 +18,8 @@ A full-stack e-commerce platform built from scratch with React, TypeScript, Node
 <br />
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-FF6B35?style=for-the-badge&logo=vercel&logoColor=white)](https://wantera-ecommerce.vercel.app)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/YOUR-LINKEDIN-USERNAME)
-[![Email](https://img.shields.io/badge/Email-Contact_Me-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:YOUR-EMAIL@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rachittyagi1200/)
+[![Email](https://img.shields.io/badge/Email-Contact_Me-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tyagirachitrt@gmail.com)
 [![GitHub](https://img.shields.io/badge/GitHub-rachittyagi01-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rachittyagi01)
 
 </div>
