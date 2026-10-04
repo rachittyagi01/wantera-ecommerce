@@ -244,5 +244,5 @@ Frontend on Vercel, backend on Render, database on MongoDB Atlas, images on Clou
 
 **Name:** Rachit Tyagi
 **GitHub:** [rachittyagi01](https://github.com/rachittyagi01)
-**LinkedIn:**
-**Email:**
+**LinkedIn:** [Rachit Tyagi](https://www.linkedin.com/in/rachittyagi1200/)  
+**Email:** tyagirachitrt@gmail.com
